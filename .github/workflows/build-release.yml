@@ -1,0 +1,86 @@
+name: Build & Release (PyInstaller / Windows)
+
+on:
+  push:
+    branches: [ "**" ]      # 任意分支推送都触发构建
+    tags:     [ "v*" ]      # 推送以 v 开头的 tag 会触发发布
+  workflow_dispatch:         # 手动触发
+
+permissions:
+  contents: write            # 需要写权限发布 Release
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          if (Test-Path requirements.txt) {
+            python -m pip install -r requirements.txt
+          } else {
+            python -m pip install --upgrade pip
+            python -m pip install pyinstaller PySide6 requests pyinstaller-hooks-contrib
+          }
+          python -m pip --version
+          pyinstaller --version
+
+      - name: Build with PyInstaller
+        shell: pwsh
+        run: |
+          pyinstaller --noconfirm --clean --name 123pan `
+            --icon favicon.ico `
+            --noconsole `
+            --onefile `
+            --add-data "favicon.ico;." `
+            --add-data "favicon.svg;." `
+            --add-data "tools;tools" `
+            --hidden-import PySide6.QtSvg app.py
+
+      - name: Prepare artifact filename
+        id: meta
+        shell: pwsh
+        run: |
+          if ("${{ github.ref }}".StartsWith("refs/tags/")) {
+            $version = "${{ github.ref_name }}"
+          } else {
+            $version = "build-${{ github.run_number }}"
+          }
+          echo "VERSION=$version" >> $env:GITHUB_ENV
+          $artifact = "123pan-$version-win-x64.exe"
+          echo "ARTIFACT_NAME=$artifact" >> $env:GITHUB_ENV
+
+      - name: Rename output
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          Move-Item "dist/123pan.exe" "artifacts/${env:ARTIFACT_NAME}"
+          # 可选：打包 spec & 日志
+          if (Test-Path "123pan.spec") { Copy-Item "123pan.spec" "artifacts/123pan.spec" }
+
+      - name: Upload artifact (CI only)
+        if: startsWith(github.ref, 'refs/heads/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: artifacts/*
+
+      - name: Publish GitHub Release (on tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
+          generate_release_notes: true
+          name: ${{ env.VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
