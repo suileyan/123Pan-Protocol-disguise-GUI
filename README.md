@@ -1,4 +1,4 @@
-# 123Pan GUI（PySide6）
+# 123PanTool GUI
 
 ![App 图标](favicon.png)
 
