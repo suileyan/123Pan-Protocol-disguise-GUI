@@ -87,7 +87,7 @@ python app.py
 打包指令（推荐）：
 
 ```bash
-pyinstaller --noconfirm --clean --name 123pan --icon favicon.ico --noconsole --onefile   --add-data "favicon.ico;." --add-data "favicon.svg;."   --add-data "tools;tools"   --hidden-import PySide6.QtSvg   app.py
+pyinstaller --noconfirm --clean --name 123PanTool --icon favicon.ico --noconsole --onefile   --add-data "favicon.ico;." --add-data "favicon.svg;."   --add-data "tools;tools"   --hidden-import PySide6.QtSvg   app.py
 ```
 
 ### 参数说明（关键点）

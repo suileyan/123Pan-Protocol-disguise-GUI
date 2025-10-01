@@ -3,5 +3,6 @@ requests~=2.31.0
 PySide6==6.9.3
 
 # 构建依赖（用于打包）
+Pillow
 pyinstaller==6.10.0
 pyinstaller-hooks-contrib>=2024.7

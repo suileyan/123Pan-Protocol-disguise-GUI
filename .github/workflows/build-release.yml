@@ -38,7 +38,7 @@ jobs:
       - name: Build with PyInstaller
         shell: pwsh
         run: |
-          pyinstaller --noconfirm --clean --name 123pan `
+          pyinstaller --noconfirm --clean --name 123PanTool `
             --icon favicon.ico `
             --noconsole `
             --onefile `
