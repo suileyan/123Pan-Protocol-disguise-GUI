@@ -40,7 +40,6 @@ jobs:
         run: |
           pyinstaller --noconfirm --clean --name 123PanTool --icon favicon.ico --noconsole --onefile   --add-data "favicon.ico;." --add-data "favicon.svg;."   --add-data "tools;tools"   --hidden-import PySide6.QtSvg   app.py
 
-
       - name: Prepare artifact filename
         id: meta
         shell: pwsh
@@ -51,14 +50,14 @@ jobs:
             $version = "build-${{ github.run_number }}"
           }
           echo "VERSION=$version" >> $env:GITHUB_ENV
-          $artifact = "123pan-$version-win-x64.exe"
+          $artifact = "123PanTool-$version-win-x64.exe"
           echo "ARTIFACT_NAME=$artifact" >> $env:GITHUB_ENV
 
       - name: Rename output
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path artifacts | Out-Null
-          Move-Item "dist/123pan.exe" "artifacts/${env:ARTIFACT_NAME}"
+          Move-Item "dist/123PanTool.exe" "artifacts/${env:ARTIFACT_NAME}"
           # 可选：打包 spec & 日志
           if (Test-Path "123pan.spec") { Copy-Item "123pan.spec" "artifacts/123pan.spec" }
 
